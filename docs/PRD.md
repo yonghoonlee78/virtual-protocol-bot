@@ -1,6 +1,5 @@
 # Virtual Protocol AI Agent Trading Bot
-## 실습 프로젝트 프레젠테이션
---
+---
 ## 1: 프로젝트 소개
 ### Virtual Protocol AI Agent Trading Bot
 
