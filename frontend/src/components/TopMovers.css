@@ -1,0 +1,93 @@
+/* frontend/src/components/TopMovers.css */
+.top-movers {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+  }
+  
+  .movers-section {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .movers-section h3 {
+    color: white;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+  }
+  
+  .movers-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .mover-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    transition: background 0.3s;
+  }
+  
+  .mover-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  .mover-rank {
+    width: 30px;
+    height: 30px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    margin-right: 1rem;
+  }
+  
+  .mover-info {
+    flex: 1;
+  }
+  
+  .mover-name {
+    color: white;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+  
+  .mover-symbol, .mover-volume {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+  }
+  
+  .mover-data {
+    text-align: right;
+  }
+  
+  .mover-price {
+    color: white;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+  
+  .mover-change {
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-weight: 600;
+  }
+  
+  .mover-change.positive {
+    color: #10b981;
+  }
+  
+  .mover-change.negative {
+    color: #ef4444;
+  }

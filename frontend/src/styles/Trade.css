@@ -1,0 +1,205 @@
+/* frontend/src/styles/Trade.css */
+.trade-page {
+    color: white;
+  }
+  
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  
+  .wallet-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+  }
+  
+  .wallet-address {
+    font-family: monospace;
+    font-size: 0.9rem;
+  }
+  
+  .disconnect-btn {
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  .disconnect-btn:hover {
+    background: #dc2626;
+  }
+  
+  /* Connect Wallet Section */
+  .connect-wallet-section {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+  }
+  
+  .connect-wallet-section h2 {
+    margin-bottom: 1rem;
+  }
+  
+  .connect-wallet-section p {
+    margin-bottom: 2rem;
+    opacity: 0.9;
+  }
+  
+  .connect-wallet-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.3s;
+  }
+  
+  .connect-wallet-btn:hover {
+    transform: scale(1.05);
+  }
+  
+  /* Swap Container */
+  .swap-container {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .swap-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 500px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .swap-card h2 {
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  
+  .swap-section {
+    margin-bottom: 1rem;
+  }
+  
+  .swap-section label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    opacity: 0.9;
+  }
+  
+  .token-input {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .token-select {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    min-width: 120px;
+  }
+  
+  .token-select option {
+    background: #333;
+  }
+  
+  .amount-input {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    text-align: right;
+  }
+  
+  .amount-input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
+  
+  .balance {
+    text-align: right;
+    font-size: 0.85rem;
+    opacity: 0.8;
+  }
+  
+  .switch-btn {
+    display: block;
+    margin: 1rem auto;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: transform 0.3s;
+  }
+  
+  .switch-btn:hover {
+    transform: rotate(180deg);
+  }
+  
+  .swap-info {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 1.5rem 0;
+  }
+  
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+  }
+  
+  .info-row:last-child {
+    margin-bottom: 0;
+  }
+  
+  .swap-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border: none;
+    padding: 1rem;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.3s;
+  }
+  
+  .swap-btn:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+  
+  .swap-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }

@@ -1,0 +1,90 @@
+/* frontend/src/components/Portfolio.css */
+.portfolio-section {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 2rem;
+    margin: 2rem 0;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .portfolio-section h2 {
+    color: white;
+    margin-bottom: 1.5rem;
+  }
+  
+  .portfolio-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  
+  .summary-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .summary-card .label {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .summary-card .value {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  
+  .summary-card .value.positive {
+    color: #10b981;
+  }
+  
+  .summary-card .value.negative {
+    color: #ef4444;
+  }
+  
+  .holdings-table {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 1rem;
+    overflow-x: auto;
+  }
+  
+  .table-header {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr 1fr;
+    padding: 1rem;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 600;
+  }
+  
+  .table-row {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr 1fr;
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    transition: background 0.3s;
+  }
+  
+  .table-row:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  
+  .table-row .symbol {
+    font-weight: 600;
+  }
+  
+  .table-row .positive {
+    color: #10b981;
+  }
+  
+  .table-row .negative {
+    color: #ef4444;
+  }

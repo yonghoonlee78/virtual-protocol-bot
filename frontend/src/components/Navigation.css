@@ -1,0 +1,86 @@
+/* frontend/src/components/Navigation.css */
+.navigation {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: 250px;
+    background: rgba(25, 25, 35, 0.95);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+  }
+  
+  .nav-brand {
+    padding: 2rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .nav-brand h2 {
+    color: white;
+    font-size: 1.3rem;
+    margin: 0;
+  }
+  
+  .nav-menu {
+    flex: 1;
+    list-style: none;
+    padding: 1rem 0;
+    margin: 0;
+  }
+  
+  .nav-menu li {
+    margin: 0.25rem 0;
+  }
+  
+  .nav-menu a {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: all 0.3s;
+  }
+  
+  .nav-menu a:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+  }
+  
+  .nav-menu a.active {
+    background: linear-gradient(90deg, rgba(102, 126, 234, 0.3), transparent);
+    color: white;
+    border-left: 3px solid #667eea;
+  }
+  
+  .nav-icon {
+    margin-right: 0.75rem;
+    font-size: 1.2rem;
+  }
+  
+  .nav-footer {
+    padding: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .connection-status {
+    display: flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.85rem;
+  }
+  
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    background: #10b981;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+    animation: pulse 2s infinite;
+  }
+  
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
