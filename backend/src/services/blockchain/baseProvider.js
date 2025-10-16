@@ -1,35 +1,66 @@
 // backend/src/services/blockchain/baseProvider.js
 const { ethers } = require('ethers');
 
+function withTimeout(promise, ms = 4000) {
+  return Promise.race([
+    promise,
+    new Promise((_, rej) => setTimeout(() => rej(new Error('rpc-timeout')), ms)),
+  ]);
+}
+
 class BaseProvider {
   constructor() {
-    // 여러 RPC URL 중 하나 선택
-    const rpcUrls = [
-      'https://mainnet.base.org',
+    const urls = (process.env.BASE_RPC_URLS || process.env.BASE_RPC_URL || '')
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean);
+
+    this.urls = urls.length ? urls : [
       'https://base.llamarpc.com',
-      'https://base-mainnet.public.blastapi.io',
-      'https://developer-access-mainnet.base.org'
+      'https://base-rpc.publicnode.com',
+      'https://1rpc.io/base',
+      'https://rpc.ankr.com/base',
     ];
-    
-    this.rpcUrl = process.env.BASE_RPC_URL || rpcUrls[0];
-    this.provider = new ethers.JsonRpcProvider(this.rpcUrl);
-    this.chainId = 8453;
+
+    this.providers = this.urls.map(u => new ethers.JsonRpcProvider(u, 8453));
+    this.index = 0; // round-robin pointer
   }
 
-  async getBlockNumber() {
-    try {
-      const blockNumber = await this.provider.getBlockNumber();
-      console.log(`Current Base block: ${blockNumber}`);
-      return blockNumber;
-    } catch (error) {
-      console.error('Error getting block number:', error);
-      throw error;
+  _pick(offset = 0) {
+    const idx = (this.index + offset) % this.providers.length;
+    return this.providers[idx];
+  }
+
+  async _withFallback(fn) {
+    let lastErr;
+    for (let i = 0; i < this.providers.length; i++) {
+      const p = this._pick(i);
+      try {
+        const ret = await withTimeout(fn(p));
+        this.index = (this.index + i) % this.providers.length; // stick to healthy one
+        return ret;
+      } catch (e) {
+        lastErr = e;
+      }
     }
+    throw lastErr || new Error('All Base RPC endpoints failed');
   }
 
-  getProvider() {
-    return this.provider;
+  getProvider() { return this._pick(0); } // for write/sendTransaction only
+
+  async getBlockNumber() { return this._withFallback(p => p.getBlockNumber()); }
+
+  async getCode(address) {
+    try { address = ethers.getAddress(address); } catch (_) {}
+    return this._withFallback(p => p.getCode(address));
   }
+
+  async getBalance(address) {
+    try { address = ethers.getAddress(address); } catch (_) {}
+    return this._withFallback(p => p.getBalance(address));
+  }
+
+  async getFeeData() { return this._withFallback(p => p.getFeeData()); }
 }
 
 module.exports = BaseProvider;

@@ -4,56 +4,59 @@ const VirtualProtocolService = require('./virtualProtocol');
 
 class AgentSyncService {
   constructor() {
-    this.vpService = new VirtualProtocolService();
+    this.vp = new VirtualProtocolService();
   }
 
-  async sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
+  /**
+   * DB에 이미 존재하는 Agent들을 대상으로 체인에서 메타데이터(name/symbol/decimals/totalSupply)를 보강합니다.
+   * - 주소가 없거나 잘못된 경우 스킵
+   * - 읽기 실패/비 ERC-20이면 스킵하고 다음으로 진행
+   */
   async syncAgentsFromBlockchain() {
     console.log('🔄 Starting blockchain sync...');
-    
-    const tokenList = [
-      { key: 'VIRTUAL', address: '0x0b3e328455c4059EEb9e3f84b5543F74E24e7E1b' },
-      { key: 'AIXBT', address: '0x4f9fd6be4a90f2620860d680c0d4d5fb53d1a825' },
-      { key: 'LUNA', address: '0x55cd6469f597452b5a7536e2cd98fde4c1247ee4' },
-      { key: 'VADER', address: '0x731814e491571A2e9eE3c5b1F7f3b962eE8f4870' },
-      { key: 'GAME', address: '0x1c4cca7c5db003824208adda61bd749e55f463a3' }
-    ];
-    
-    for (const token of tokenList) {
+    const agents = await Agent.find({}).lean();
+
+    if (!agents || agents.length === 0) {
+      console.log('ℹ️ No agents found in DB. (Seed or import first)');
+      return;
+    }
+
+    for (const a of agents) {
+      const symbol = a.symbol || 'UNKNOWN';
+      const address = a.address;
+      if (!address || !/^0x[0-9a-fA-F]{40}$/.test(address)) {
+        console.warn(`Skipping ${symbol}: invalid or empty address`);
+        continue;
+      }
+
       try {
-        // 각 토큰 사이에 1초 딜레이
-        await this.sleep(1000);
-        
-        const info = await this.vpService.getTokenInfo(token.address);
-        
-        await Agent.findOneAndUpdate(
-          { address: token.address },
-          {
-            address: token.address,
-            name: info.name,
-            symbol: info.symbol,
-            metadata: {
-              decimals: info.decimals,
-              totalSupply: info.totalSupply,
-              blockchain: 'Base',
-              source: 'Virtual Protocol'
-            },
-            priceData: {
-              lastUpdated: new Date()
-            }
-          },
-          { upsert: true, new: true }
-        );
-        
-        console.log(`✅ Synced ${token.key}`);
-      } catch (error) {
-        console.error(`Error syncing ${token.key}:`, error.message);
+        const info = await this.vp.getTokenInfo(address);
+
+        // 비 ERC-20 처리: getTokenInfo()에서 throw → catch되어 스킵
+        if (!info) {
+          console.warn(`Skipping ${symbol}: no info`);
+          continue;
+        }
+
+        // decimals/이름/심볼 정규화
+        const update = {
+          name: info.name,
+          symbol: a.symbol || info.symbol || 'UNK',
+          address: info.address,
+          decimals: info.decimals,
+          totalSupply: info.totalSupply || a.totalSupply || null,
+          // priceData/tradingStats 등은 별도 PriceService가 관리하므로 여기서는 손대지 않음
+          updatedAt: new Date()
+        };
+
+        await Agent.updateOne({ _id: a._id }, { $set: update });
+        console.log(`✅ Synced ${symbol}`);
+      } catch (e) {
+        console.warn(`Error syncing ${symbol}: ${e.message}`);
+        // 계속 진행
       }
     }
-    
+
     console.log('✅ Blockchain sync complete');
   }
 }

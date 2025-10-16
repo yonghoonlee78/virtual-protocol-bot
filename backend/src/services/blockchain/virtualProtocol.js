@@ -1,15 +1,7 @@
 // backend/src/services/blockchain/virtualProtocol.js
+// Base 체인용 Virtual Protocol 보조 유틸 (안전 호출 포함)
 const { ethers } = require('ethers');
 const BaseProvider = require('./baseProvider');
-
-// Virtual Protocol 토큰 주소들 (Base 체인)
-const ADDRESSES = {
-  VIRTUAL: '0x0b3e328455c4059EEb9e3f84b5543F74E24e7E1b',
-  AIXBT: '0x4f9fd6be4a90f2620860d680c0d4d5fb53d1a825',
-  LUNA: '0x55cd6469f597452b5a7536e2cd98fde4c1247ee4',
-  VADER: '0x731814e491571A2e9eE3c5b1F7f3b962eE8f4870',
-  GAME: '0x1c4cca7c5db003824208adda61bd749e55f463a3'
-};
 
 const ERC20_ABI = [
   'function name() view returns (string)',
@@ -17,64 +9,98 @@ const ERC20_ABI = [
   'function decimals() view returns (uint8)',
   'function totalSupply() view returns (uint256)',
   'function balanceOf(address) view returns (uint256)',
+  'function allowance(address owner, address spender) view returns (uint256)',
+  'function approve(address spender, uint256 value) returns (bool)'
 ];
+
+async function safeCall(promise, fallback = null) {
+  try {
+    return await promise;
+  } catch (_) {
+    return fallback;
+  }
+}
 
 class VirtualProtocolService {
   constructor() {
-    const baseProvider = new BaseProvider();
-    this.provider = baseProvider.getProvider();
+    this.base = new BaseProvider();
+    this.provider = this.base.getProvider();
   }
 
-  async getTokenInfo(tokenAddress) {
+  getProvider() {
+    return this.provider;
+  }
+
+  getErc20(address) {
+    return new ethers.Contract(address, ERC20_ABI, this.provider);
+  }
+
+  async isContract(address) {
     try {
-      const contract = new ethers.Contract(tokenAddress, ERC20_ABI, this.provider);
-      
-      const [name, symbol, decimals, totalSupply] = await Promise.all([
-        contract.name(),
-        contract.symbol(),
-        contract.decimals(),
-        contract.totalSupply()
-      ]);
-
-      return {
-        address: tokenAddress,
-        name,
-        symbol,
-        decimals: Number(decimals),
-        totalSupply: ethers.formatUnits(totalSupply, decimals)
-      };
-    } catch (error) {
-      console.error('Error fetching token info:', error);
-      throw error;
+      const code = await this.provider.getCode(address);
+      return !!code && code !== '0x';
+    } catch {
+      return false;
     }
   }
 
-  async getAllAgentTokens() {
-    const tokens = [];
-    for (const [key, address] of Object.entries(ADDRESSES)) {
-      try {
-        const info = await this.getTokenInfo(address);
-        tokens.push({
-          ...info,
-          key
-        });
-      } catch (error) {
-        console.error(`Error fetching ${key}:`, error.message);
-      }
+  /** 비 ERC-20 또는 리턴 실패여도 기본값으로 반환, 상위에서 스킵 가능 */
+  async getTokenInfo(address) {
+    const isC = await this.isContract(address);
+    if (!isC) {
+      throw new Error(`No contract at ${address}`);
     }
-    return tokens;
+    const erc = this.getErc20(address);
+
+    const [name, symbol, decimals, totalSupply] = await Promise.all([
+      safeCall(erc.name(), 'Unknown'),
+      safeCall(erc.symbol(), 'UNK'),
+      safeCall(erc.decimals(), 18),
+      safeCall(erc.totalSupply(), null)
+    ]);
+
+    // 일부 컨트랙트는 name/symbol을 bytes32로 반환 → 문자열화 실패시 기본값
+    return {
+      address,
+      name: (typeof name === 'string' && name) ? name : 'Unknown',
+      symbol: (typeof symbol === 'string' && symbol) ? symbol : 'UNK',
+      decimals: Number(decimals || 18),
+      totalSupply: totalSupply // null일 수 있음
+    };
+  }
+
+  async getTokenDecimals(address) {
+    const erc = this.getErc20(address);
+    const d = await safeCall(erc.decimals(), 18);
+    return Number(d || 18);
+  }
+
+  async getTokenSymbol(address) {
+    const erc = this.getErc20(address);
+    const s = await safeCall(erc.symbol(), 'UNK');
+    return s || 'UNK';
+  }
+
+  async getTokenName(address) {
+    const erc = this.getErc20(address);
+    const n = await safeCall(erc.name(), 'Unknown');
+    return n || 'Unknown';
   }
 
   async getTokenBalance(tokenAddress, walletAddress) {
+    const [isC, decimals] = await Promise.all([
+      this.isContract(tokenAddress),
+      this.getTokenDecimals(tokenAddress).catch(() => 18)
+    ]);
+    if (!isC) return 0;
+
+    const erc = this.getErc20(tokenAddress);
+    const bal = await safeCall(erc.balanceOf(walletAddress), 0n);
     try {
-      const contract = new ethers.Contract(tokenAddress, ERC20_ABI, this.provider);
-      const balance = await contract.balanceOf(walletAddress);
-      const decimals = await contract.decimals();
-      
-      return ethers.formatUnits(balance, decimals);
-    } catch (error) {
-      console.error('Error fetching token balance:', error);
-      throw error;
+      return Number(ethers.formatUnits(bal, decimals));
+    } catch {
+      // decimals가 말이 안 되거나 bal이 0n이 아닌데 포맷 실패 → 0 처리
+      return 0;
     }
   }
 }
