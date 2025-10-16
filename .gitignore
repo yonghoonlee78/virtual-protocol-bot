@@ -27,3 +27,4 @@ build/
 
 # Backup
 backup/
+.env
